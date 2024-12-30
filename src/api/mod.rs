@@ -1,8 +1,18 @@
 use reqwest;
 use serde::Deserialize;
-use serde_json;  // Import serde_json to work with JSON
+use serde_json;  // to work with JSON
 use dotenv::dotenv;
 use std::env;
+
+use std::fs::File;
+use std::io::Write;
+
+pub fn save_to_file(data: &serde_json::Value, file_name: &str) -> std::io::Result<()> {
+    let mut file = File::create(file_name)?;
+    let json_data = serde_json::to_string_pretty(data)?;
+    file.write_all(json_data.as_bytes())?;
+    Ok(())
+}
 
 #[derive(Deserialize, Debug)]
 pub struct StockData {
@@ -34,7 +44,9 @@ pub async fn fetch_full_stock_data(symbol: &str) -> Result<StockData, Box<dyn st
     );
     let quote_response = reqwest::get(&quote_url).await?;
     let quote_json: serde_json::Value = quote_response.json().await?;
-    println!("Global Quote Response: {:#?}", quote_json); // Print full response
+    //println!("Global Quote Response: {:#?}", quote_json); // Print full response
+
+    save_to_file(&quote_json, "out/quote.json")?; // save to file instead of printing
 
     let price: f64 = quote_json
         .get("Global Quote")
@@ -50,7 +62,9 @@ pub async fn fetch_full_stock_data(symbol: &str) -> Result<StockData, Box<dyn st
     );
     let income_response = reqwest::get(&income_url).await?;
     let income_json: serde_json::Value = income_response.json().await?;
-    println!("Income Statement Response: {:#?}", income_json); // Print full response
+    //println!("Income Statement Response: {:#?}", income_json); // Print full response
+
+    save_to_file(&income_json, "out/income_statement.json")?; // save to file instead of printing
 
     let annual_reports = income_json
         .get("annualReports")
@@ -71,7 +85,9 @@ pub async fn fetch_full_stock_data(symbol: &str) -> Result<StockData, Box<dyn st
     );
     let balance_response = reqwest::get(&balance_url).await?;
     let balance_json: serde_json::Value = balance_response.json().await?;
-    println!("Balance Sheet Response: {:#?}", balance_json); // Print full response
+    //println!("Balance Sheet Response: {:#?}", balance_json);  Print full response
+
+    save_to_file(&balance_json, "out/balance.json")?; // save to file instead of printing
 
     let balance_reports = balance_json
         .get("annualReports")
@@ -98,7 +114,9 @@ pub async fn fetch_full_stock_data(symbol: &str) -> Result<StockData, Box<dyn st
     );
     let overview_response = reqwest::get(&overview_url).await?;
     let overview_json: serde_json::Value = overview_response.json().await?;
-    println!("Overview Response: {:#?}", overview_json); // Print full response
+    //println!("Overview Response: {:#?}", overview_json); // Print full response
+
+    save_to_file(&overview_json, "out/overview.json")?; // save to file instead of printing
 
     let outstanding_shares_str = overview_json
         .get("SharesOutstanding")

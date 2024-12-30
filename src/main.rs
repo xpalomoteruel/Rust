@@ -3,7 +3,14 @@ mod api;
 
 #[tokio::main]
 async fn main() {
-    let stock_symbol = "AAPL"; // Example: Apple stock
+    let stock_symbol = "AAPL";
+
+    /*dotenv().ok();
+
+    match env::var("ALPHA_VANTAGE_API_KEY") {
+        Ok(key) => println!("API Key loaded: {}", key),
+        Err(_) => eprintln!("Error: ALPHA_VANTAGE_API_KEY not found"),
+    }*/
 
     match api::fetch_full_stock_data(stock_symbol).await {
         Ok(stock_data) => {
@@ -15,7 +22,6 @@ async fn main() {
             println!("EPS (Earnings Per Share): {:.2}", stock_data.eps);
             println!("P/E Ratio: {:.2}", stock_data.pe_ratio);
             println!("Total Debt: {:.2}", stock_data.total_debt);
-            // Print other placeholder values or metrics if desired
         }
         Err(e) => eprintln!("Error fetching stock data: {}", e),
     }
